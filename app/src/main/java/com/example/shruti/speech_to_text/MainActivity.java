@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.speech.RecognitionListener;
 import android.speech.RecognitionService;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.speech.tts.TextToSpeech;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 import android.util.Log;
 import android.widget.Toast;
@@ -56,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements
         public void onInit(int status) {
 
             if (status == TextToSpeech.SUCCESS) {
-
+                Log.e("as","IN Success");
                 int result = tts.setLanguage(Locale.ENGLISH);
 
                 if (result == TextToSpeech.LANG_MISSING_DATA
@@ -64,10 +66,27 @@ public class MainActivity extends AppCompatActivity implements
                     Log.e("TTS", "This Language is not supported");
 
                 }
-            else
-                    tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+                else {
+                    HashMap<String, String> map = new HashMap<String, String>();
+                    map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "UniqueID");
+                    tts.speak(text, TextToSpeech.QUEUE_FLUSH, map);
+                    tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                        @Override
+                        public void onStart(String s) {
 
+                        }
 
+                        @Override
+                        public void onDone(String s) {
+                            startVoiceInput();
+                        }
+
+                        @Override
+                        public void onError(String s) {
+                            Log.e("error","error:"+s);
+                        }
+                    });
+                    }
             } else {
                 Log.e("TTS", "Initilization Failed!");
             }
@@ -81,32 +100,24 @@ public class MainActivity extends AppCompatActivity implements
         ImageView image=(ImageView) findViewById(R.id.imageView);
         text="welcome to AEV! do you want to turn on voice mode?";
         tts = new TextToSpeech(this, this);
-        try {
-                Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        startSpeechRecogniser();
-
     }
 
     private void startSpeechRecogniser() {
-        Log.e("", "startSpeechRecogniser: ");
         if (speech==null) {
-            speech = SpeechRecognizer.createSpeechRecognizer(this);
+
+            speech = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
             speech.setRecognitionListener(new listener());
             recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
             recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
             recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
             recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH);
-            //recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName());
-
-            startVoiceInput();
+            recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName());
         }
     }
 
     public void startVoiceInput()
     {
+        Log.e("Per","Permissions");
         ActivityCompat.requestPermissions
                 (MainActivity.this,
                         new String[]{Manifest.permission.RECORD_AUDIO},
@@ -115,6 +126,8 @@ public class MainActivity extends AppCompatActivity implements
 
     public void listen()
     {
+        Log.i("listening", "listening");
+        startSpeechRecogniser();
         speech.startListening(recognizerIntent);
     }
 
@@ -126,7 +139,9 @@ public class MainActivity extends AppCompatActivity implements
             case REQUEST_RECORD_PERMISSION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                  try{
-                    listen(); }
+
+                     listen();
+                    }
                     catch (Exception e)
                     {
                         Toast.makeText(MainActivity.this, "unable to listen", Toast
@@ -143,12 +158,12 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         public void onReadyForSpeech(Bundle bundle) {
-            Log.i("", "onreadyforspeech: ");
+            Log.i("", "onreadyforspeech ");
         }
 
         @Override
         public void onBeginningOfSpeech() {
-            Log.i("", "onbegofspeech: ");
+            Log.i("", "onbegofspeech ");
         }
 
         @Override
@@ -163,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         public void onEndOfSpeech() {
-            Log.i("", "onendofspeech: ");
+            Log.i("", "onendofspeech ");
         }
 
         @Override
@@ -176,32 +191,37 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public void onResults(Bundle results) {
 
+            Log.i("", "on results ");
             ArrayList<String> Result = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             Toast.makeText(MainActivity.this, Result.get(0),Toast.LENGTH_SHORT).show();
+
             if (Result.get(0).equals("yes") || Result.get(0).equals("no")) {
 
                 if (!flag) {
                     response = Result.get(0);
                     confirmation(Result);
-                } else if (Result.get(0).equals("yes") && response.equals("yes")) {
+                }
+                else if (Result.get(0).equals("yes") && response.equals("yes")) {
                     Intent intent = new Intent(MainActivity.this, CommandActivity.class);
                     startActivity(intent);
-                } else if ((Result.get(0).equals("no") && response.equals("no")) || (Result.get(0).equals("yes") && response.equals("no"))) {
+
+                } else if ((Result.get(0).equals("no") && response.equals("no")) || (Result.get(0).equals("no") && response.equals("yes"))) {
                     flag = false;
                     text = "Do you want to turn on voice mode?";
                     tts = new TextToSpeech(MainActivity.this, MainActivity.this);
-                    listen();
+
                 } else {
                     // result="yes"; response="no"...
                     speech.stopListening();
                     // exit the application...
+                    onDestroy();
                     finish();
                 }
             } else {
                 flag = false;
                 text = "Sorry ! please repeat again !";
                 tts = new TextToSpeech(MainActivity.this, MainActivity.this);
-                listen();
+
             }
 
         }
@@ -211,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements
             flag=true;
             text="Did u say"+Result;
             tts = new TextToSpeech(MainActivity.this,MainActivity.this);
-            listen();
+
         }
 
         @Override
