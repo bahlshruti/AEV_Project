@@ -17,10 +17,10 @@ public class CommandActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.command);
         EditText edt= (EditText) findViewById(R.id.editText);
-        populatelistView();
+        //populatelistView();
     }
 
-    private void populatelistView(){
+    /*private void populatelistView(){
         // create list of modes
         String [] modes={"User","Auto Pilot","Angle(Others)"};
 
@@ -32,5 +32,5 @@ public class CommandActivity extends Activity {
         //configure list view...
         ListView list = (ListView)findViewById(R.id.listItem);
         list.setAdapter(adapter);
-    }
+    }*/
 }

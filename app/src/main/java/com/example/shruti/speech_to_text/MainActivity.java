@@ -191,8 +191,8 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public void onResults(Bundle results) {
 
-            Log.i("", "on results ");
             ArrayList<String> Result = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            Log.i("onresult", "onResults: " +Result);
             Toast.makeText(MainActivity.this, Result.get(0),Toast.LENGTH_SHORT).show();
 
             if (Result.get(0).equals("yes") || Result.get(0).equals("no")) {
