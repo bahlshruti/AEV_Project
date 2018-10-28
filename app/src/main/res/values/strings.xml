@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Speech_To_Text</string>
+    <string name="title_activity_user__mode">User_ModeActivity</string>
 </resources>

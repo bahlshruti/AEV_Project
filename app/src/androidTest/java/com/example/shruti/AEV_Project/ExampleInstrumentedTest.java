@@ -1,4 +1,4 @@
-package com.example.shruti.speech_to_text;
+package com.example.shruti.AEV_Project;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

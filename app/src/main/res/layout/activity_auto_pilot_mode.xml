@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+<TextView
+    android:id="@+id/textView1"
+    android:layout_width="match_parent"
+    android:layout_height="@android:dimen/notification_large_icon_width"
+    android:fontFamily="monospace"
+    android:text="Auto Pilot"
+    android:textAlignment="center"
+    android:textColor="?attr/colorControlActivated"
+    android:textColorLink="@color/colorPrimary"
+    android:textSize="36sp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="@android:dimen/notification_large_icon_height"
+        android:fontFamily="serif-monospace"
+        android:textStyle="bold"
+        android:text="1. Move Forward"
+        android:textAlignment="center"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="@android:dimen/notification_large_icon_height"
+        android:fontFamily="serif-monospace"
+        android:textStyle="bold"
+        android:text="2. Reverse"
+        android:textAlignment="center"
+        android:textSize="30sp" />
+
+</LinearLayout>
