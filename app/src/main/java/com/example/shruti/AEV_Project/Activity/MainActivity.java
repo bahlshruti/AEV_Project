@@ -16,12 +16,13 @@ import android.os.Bundle;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.example.shruti.AEV_Project.R;
+import com.example.shruti.AEV_Project.Constants;
 import com.example.shruti.AEV_Project.Interface.ServiceCallbacks;
 import com.example.shruti.AEV_Project.Service.TTSService;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -36,6 +37,10 @@ public class MainActivity extends AppCompatActivity implements ServiceCallbacks 
     private final int REQ_CODE_SPEECH_INPUT = 100;
     boolean flag = false;
     String response = "yes";
+
+    List<String> positiveArray = Constants.positiveArray;
+    List<String> negativeArray  = Constants.negativeArray;
+
 
     public void checkforpermissions() {
         if (ContextCompat.checkSelfPermission(MainActivity.this,
@@ -77,6 +82,10 @@ public class MainActivity extends AppCompatActivity implements ServiceCallbacks 
             Log.i(TAG, "Current Thread is Main Thread");
         }
         checkforpermissions();
+
+
+        //positiveArray = Arrays.asList(getResources().getStringArray(R.array.positive_response));
+        //negativeArray = Arrays.asList(getResources().getStringArray(R.array.negative_response));
 
     }
 
@@ -147,14 +156,21 @@ public class MainActivity extends AppCompatActivity implements ServiceCallbacks 
 
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
 
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            Log.i(TAG,"Current thread is not the UI/Main thread");
+        }
+
         try {
+                Log.i(TAG,"starting activty for result");
             startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
         } catch (ActivityNotFoundException a) {
+            Log.i(TAG,"Exception");
+            /**
             Toast.makeText(MainActivity.this,
                     " exception",
                     Toast.LENGTH_SHORT).show();
+             **/
         }
-
     }
 
     @Override
@@ -187,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements ServiceCallbacks 
      * */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
@@ -199,18 +216,18 @@ public class MainActivity extends AppCompatActivity implements ServiceCallbacks 
                             "result: " + Result,
                             Toast.LENGTH_SHORT).show();
 
-                    if (Result.get(0).equals("yes") || Result.get(0).equals("no")) {
+                    if (positiveArray.contains( Result.get(0)) || negativeArray.contains(Result.get(0))) {
 
                         if (!flag) {
                             response = Result.get(0);
                             confirmation(Result);
 
-                        } else if (Result.get(0).equals("yes") && response.equals("yes")) {
+                        } else if (positiveArray.contains(Result.get(0)) && positiveArray.contains(response)) {
                             Intent intent = new Intent(MainActivity.this, ModesActivity.class);
                             startActivity(intent);
                             finish();
 
-                        } else if ((Result.get(0).equals("no") && response.equals("no")) || (Result.get(0).equals("no") && response.equals("yes"))) {
+                        } else if ((negativeArray.contains(Result.get(0)) && negativeArray.contains(response)) || (negativeArray.contains(Result.get(0)) && positiveArray.contains(response))) {
 
                             flag = false;
                             speechIntent.putExtra("content_to_speak", "Do you want to turn on voice mode!");

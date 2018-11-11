@@ -19,14 +19,11 @@ import java.util.Locale;
 public class TTSService extends TextToSpeechService  implements TextToSpeech.OnInitListener{
 
     private String content = null;
-    private  String options = null;
-    private  String confirmation = null;
-    private  String re_speak = null;
 
     private TextToSpeech tts;
     private static final String TAG="TTSService";
     private int status;
-    String reference=null;
+
 
     public boolean bound;
 
@@ -80,6 +77,7 @@ public class TTSService extends TextToSpeechService  implements TextToSpeech.OnI
 
     //onUnbind is only called when all clients have disconnected.
     // Thus bound will stay true until all clients have disconnected.
+
     @Override
     public boolean onUnbind(Intent intent) {
         Log.v(TAG, "onunbinding service");
@@ -87,7 +85,9 @@ public class TTSService extends TextToSpeechService  implements TextToSpeech.OnI
         return super.onUnbind(intent);
     }
 
-    public void setCallbacks(ServiceCallbacks callbacks) {
+    public void setCallbacks(ServiceCallbacks callbacks)
+    {
+        Log.i(TAG, "setting Callbacks");
         serviceCallbacks = callbacks;
     }
     @Override
@@ -95,7 +95,6 @@ public class TTSService extends TextToSpeechService  implements TextToSpeech.OnI
 
         Log.v(TAG, "oncreate_service");
         super.onCreate();
-
     }
 
     @Override
@@ -108,9 +107,11 @@ public class TTSService extends TextToSpeechService  implements TextToSpeech.OnI
                     result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.v(TAG, "Language is not available.");
             }
-            else {
-                    Log.v(TAG, "calling say function");
-                    say(content);
+
+            else
+            {
+                Log.v(TAG, "calling say function");
+                say(content);
             }
         }
         else {
@@ -128,8 +129,7 @@ public class TTSService extends TextToSpeechService  implements TextToSpeech.OnI
             content = intent.getExtras().getString("content_to_speak");
             Log.i(TAG, "str = "+content);
 
-            }
-
+        }
         tts = new TextToSpeech(this,this);  // OnInitListener
 
         return super.onStartCommand(intent, flags, startId);
@@ -144,6 +144,7 @@ public class TTSService extends TextToSpeechService  implements TextToSpeech.OnI
 
             tts=null;
         }
+        serviceCallbacks = null;
         Log.i(TAG, "bound ="+bound);
         super.onDestroy();
     }
@@ -171,7 +172,6 @@ public class TTSService extends TextToSpeechService  implements TextToSpeech.OnI
                 if (serviceCallbacks != null) {
                     serviceCallbacks.doSomething();
                 }
-
             }
 
             @Override
@@ -183,41 +183,6 @@ public class TTSService extends TextToSpeechService  implements TextToSpeech.OnI
         });
     }
 
-    private void say(String str,String str1) {
-
-        HashMap<String, String> map = new HashMap<String, String>();
-        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "UniqueID");
-        tts.setSpeechRate(0.75f);
-        tts.speak(str, TextToSpeech.QUEUE_FLUSH, null);
-        tts.speak(str1, TextToSpeech.QUEUE_ADD, map);
-
-        //Utteranceprogresslistener used to identify whenn TTS is completed...
-        tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-            @Override
-            public void onStart(String s) {
-                //speakig started
-                Log.i(TAG, "started speaking ");
-            }
-
-            @Override
-            public void onDone(String s) {
-                //speaking stopped
-                Log.v(TAG, "about to listen "+ s);
-
-                if (serviceCallbacks != null) {
-                    serviceCallbacks.doSomething();
-                }
-
-            }
-
-            @Override
-            public void onError(String s) {
-                // there was an error
-                Log.e("error","error:"+s);
-            }
-
-        });
-    }
 
 
 }

@@ -8,73 +8,56 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.speech.RecognizerIntent;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
-import com.example.shruti.AEV_Project.Constants;
 import com.example.shruti.AEV_Project.R;
 import com.example.shruti.AEV_Project.Interface.ServiceCallbacks;
 import com.example.shruti.AEV_Project.Service.TTSService;
 
 
-public class UserModeActivity extends AppCompatActivity implements ServiceCallbacks {
+public class AutoSteeringActivity extends AppCompatActivity implements ServiceCallbacks {
 
+    private static final String TAG = "AutoPilotCommand";
+    private final int REQ_CODE_SPEECH_INPUT = 100;
     private TTSService TTS;
     private boolean bound = false;
-    private static final String TAG = "UserCommand";
-    private final int REQ_CODE_SPEECH_INPUT = 100;
     boolean flag = false;
     String response = "yes";
     Intent speechIntent;
     Intent intent;
 
-    List<String> option_1 = Constants.option_1;
-    List<String> option_5 = Constants.option_5;
-    List<String> positiveresponse = Constants.positiveArray;
-    List<String> negativeresponse  = Constants.negativeArray;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_mode);
-
+        setContentView(R.layout.activity_auto_steering );
     }
 
     @Override
     protected void onStart() {
         Log.i(TAG, "onStart");
         super.onStart();
-        speechIntent = new Intent(UserModeActivity.this, TTSService.class);
-        speechIntent.putExtra("content_to_speak", "welcome to User Commands section! Which command you want to run?" +
-                "one for Acceleration   2 for Left   3 for Right  4 for Reverse 5 for Exit");
-
+        speechIntent = new Intent(AutoSteeringActivity.this, TTSService.class);
+        speechIntent.putExtra("content_to_speak", "welcome to Auto Pilot Commands section! Which command you want to run? " +
+                " 1 for Forward 2 for Reverse 3 for Exit");
+        //speechIntent.putExtra("options", " 1 for Forward 2 for Reverse 3 for Exit");
         bindService(speechIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         startService(speechIntent);
     }
 
     @Override
     protected void onStop() {
-
+        Log.i(TAG, "Stop activity");
+        super.onStop();
         if(bound) {
             unbindService(serviceConnection);
             bound = false;
-            //stopService(speechIntent);
+            stopService(speechIntent);
         }
-
-        Log.i(TAG, "Stop activity");
-        super.onStop();
     }
 
     @Override
@@ -82,7 +65,14 @@ public class UserModeActivity extends AppCompatActivity implements ServiceCallba
 
         super.onDestroy();
 
+        //stopIntent=new Intent(MainActivity.this,TTSService.class);
+        //stopService(stopIntent);
+
         Log.i(TAG, "Destroy Activity");
+
+        if(TTS !=null || speechIntent !=null)
+            TTS=null;
+
     }
 
     /**
@@ -96,7 +86,7 @@ public class UserModeActivity extends AppCompatActivity implements ServiceCallba
             TTSService.LocalBinder binder = (TTSService.LocalBinder) service;
             TTS = binder.getService();
             bound = true;
-            TTS.setCallbacks(UserModeActivity.this); // register
+            TTS.setCallbacks(AutoSteeringActivity.this); // register
         }
 
         @Override
@@ -126,7 +116,7 @@ public class UserModeActivity extends AppCompatActivity implements ServiceCallba
         try {
             this.startActivityForResult(intent,REQ_CODE_SPEECH_INPUT);
         } catch (ActivityNotFoundException a) {
-            Toast.makeText(UserModeActivity.this,
+            Toast.makeText(AutoSteeringActivity.this,
                     " exception",
                     Toast.LENGTH_SHORT).show();
         }
@@ -147,39 +137,23 @@ public class UserModeActivity extends AppCompatActivity implements ServiceCallba
                     ArrayList<String> Result = data
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 
-                    Toast.makeText(UserModeActivity.this,
+                    Toast.makeText(AutoSteeringActivity.this,
                             "result: " + Result,
                             Toast.LENGTH_SHORT).show();
-
-                    if (option_1.contains(Result.get(0)))
-                    {
-                        Toast.makeText(UserModeActivity.this,
-                                "The car is accelerating",
-                                Toast.LENGTH_SHORT).show();
-                        speechIntent.putExtra("content_to_speak", "The car is accelerating. Do you wish to continue?");
-                        startService(speechIntent);
-                    }
-                    else if(option_5.contains(Result.get(0))||negativeresponse.contains(Result.get(0)))
-                    {
-                            finish();
-                    }
-                    else if (positiveresponse.contains(Result.get(0)))
-                    {
-                        speechIntent.putExtra("content_to_speak", "which option you would prefer?");
-                        startService(speechIntent);
-                    }
-
-                    else
-                    {
-                        speechIntent.putExtra("content_to_speak", "please try again");
-                        startService(speechIntent);
-                    }
-
-
+                    finish();
                 }
             }
         }
     }
+
+    public void confirmation(ArrayList<String> Result) {
+        flag = true;
+        Log.i(TAG, "Result: " + Result);
+        speechIntent.putExtra("content_to_speak", "did you say" + Result);
+        startService(speechIntent);
+
+    }
+
 }
 
 

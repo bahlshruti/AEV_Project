@@ -13,11 +13,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.shruti.AEV_Project.Constants;
 import com.example.shruti.AEV_Project.R;
 import com.example.shruti.AEV_Project.Interface.ServiceCallbacks;
 import com.example.shruti.AEV_Project.Service.TTSService;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -32,11 +34,19 @@ public class ModesActivity extends AppCompatActivity implements ServiceCallbacks
     Intent speechIntent;
     Intent intent;
 
+    List<String> positive = Constants.positiveArray;
+    List<String> option_1 = Constants.option_1;
+    List<String> option_2 = Constants.option_2;
+    List<String> option_3 = Constants.option_3;
+    List<String> option_4 = Constants.option_4;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modes);
         Log.i(TAG, "onCreate called");
+
+        //List<String> ;
     }
 
     @Override
@@ -44,7 +54,8 @@ public class ModesActivity extends AppCompatActivity implements ServiceCallbacks
         Log.i(TAG, "onStart");
         super.onStart();
         speechIntent = new Intent(ModesActivity.this, TTSService.class);
-        speechIntent.putExtra("content_to_speak", "welcome to Mode section ! Which mode you would prefer.  one for user mode.   2 for Auto mode.   3 for Auto Pilot.  or Exit");
+        speechIntent.putExtra("content_to_speak", "welcome to Mode section ! Which mode you would prefer." +
+                "  one for user mode.   2 for Auto mode.   3 for Auto Pilot.  or 4 for Exit");
         //speechIntent.putExtra("options", " one for user mode.   2 for Auto mode.   3 for Auto Pilot.  or Exit");
         bindService(speechIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         startService(speechIntent);
@@ -100,6 +111,7 @@ public class ModesActivity extends AppCompatActivity implements ServiceCallbacks
         promptSpeechInput();
     }
 
+
     private void promptSpeechInput() {
         Log.i(TAG, "start speech recogniser... ");
 
@@ -139,31 +151,32 @@ public class ModesActivity extends AppCompatActivity implements ServiceCallbacks
                             "result: " + Result,
                             Toast.LENGTH_SHORT).show();
 
-                    if (Result.get(0).equals("1") || Result.get(0).equals("two") || Result.get(0).equals("three") || Result.get(0).equals("exit")) {
+                    if (option_1.contains(Result.get(0)) || option_2.contains(Result.get(0)) || option_3.contains(Result.get(0)) || option_4.contains(Result.get(0))) {
 
                         if (!flag) {
                             response = Result.get(0);
                             confirmation(Result);
                         }
-                    } else if (Result.get(0).equals("yes") && response.equals("1")) {
+                    } else if (positive.contains( Result.get(0) ) && option_1.contains( response )){
                         intent = new Intent(ModesActivity.this, UserModeActivity.class);
                         startActivity(intent);
                         finish();
 
-                    } else if (Result.get(0).equals("yes") && response.equals("two")) {
-                        intent = new Intent(ModesActivity.this,AutoModeActivity.class);
+                    } else if (positive.contains( Result.get(0) ) && option_2.contains( response )) {
+                        intent = new Intent(ModesActivity.this,AutoPilotActivity.class);
                         startActivity(intent);
+                        finish();
 
-                    } else if (Result.get(0).equals("yes") && response.equals("three")) {
-                        intent = new Intent(ModesActivity.this, AutoPilotActivity.class);
+                    } else if (positive.contains( Result.get(0) ) && option_3.contains( response )) {
+                        intent = new Intent(ModesActivity.this, AutoSteeringActivity.class);
                         startActivity(intent);
+                        finish();
                     }
-                    else if(Result.get(0).equals("yes") && response.equals("exit"))
+                    else if(positive.contains(Result.get(0) ) && option_4.contains( response ))
                     {
                         // to exit from application
                         flag=false;
                         finish();
-
                     }
                     else {
                         flag = false;

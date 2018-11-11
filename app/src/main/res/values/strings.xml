@@ -1,4 +1,35 @@
 <resources>
     <string name="app_name">Speech_To_Text</string>
-    <string name="title_activity_user__mode">User_ModeActivity</string>
+    <string-array name="positive_response">
+        <item>yes</item>
+        <item>yea</item>
+        <item>yep</item>
+    </string-array>
+    <string-array name="negative_response">
+        <item>no</item>
+        <item>nope</item>
+    </string-array>
+    <string-array name="option1">
+        <item>1</item>
+        <item>one</item>
+    </string-array>
+    <string-array name="option2">
+        <item>2</item>
+        <item>too</item>
+        <item>two</item>
+    </string-array>
+    <string-array name="option3">
+        <item>3</item>
+        <item>three</item>
+    </string-array>
+    <string-array name="option4">
+        <item>4</item>
+        <item>four</item>
+    </string-array>
+
+    <string-array name="option5">
+        <item>5</item>
+        <item>five</item>
+    </string-array>
+
 </resources>

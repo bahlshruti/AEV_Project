@@ -57,7 +57,7 @@
         android:layout_height="@android:dimen/notification_large_icon_height"
         android:fontFamily="serif-monospace"
         android:textStyle="bold"
-        android:text="Exit"
+        android:text="4. Exit"
         android:textAlignment="center"
         android:textSize="30sp" />
 

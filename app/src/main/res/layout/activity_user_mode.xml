@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="@android:dimen/notification_large_icon_width"
         android:fontFamily="monospace"
-        android:text="Auto Pilot"
+        android:text="User Mode"
         android:textAlignment="center"
         android:textColor="?attr/colorControlActivated"
         android:textColorLink="@color/colorPrimary"
